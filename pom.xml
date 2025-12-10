@@ -90,9 +90,14 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
+            <version>4.25.0</version>
+        </dependency>
+        <dependency>
     		<groupId>org.mockito</groupId>
     		<artifactId>mockito-core</artifactId>
-    		<version>1.9.5</version>
+    		<version>4.11.0</version>
     		<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -120,42 +125,57 @@
 		</dependency>
     </dependencies>
     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-maven-plugin</artifactId>
-                <version>9.2.11.v20150529</version>
-                <configuration>
-                    <scanIntervalSeconds>10</scanIntervalSeconds>
-                    <webApp>
-                        <contextPath>/</contextPath>
-                    </webApp>
-                </configuration>
-            </plugin>
-		<!-- CODE COVERAGE -->
-		    <plugin>
-		        <groupId>org.jacoco</groupId>
-		        <artifactId>jacoco-maven-plugin</artifactId>
-		        <version>0.7.2.201409121644</version>
-		        <executions>
-		            <execution>
-		                <id>jacoco-initialize</id>
-		                <phase>process-resources</phase>
-		                <goals>
-		                    <goal>prepare-agent</goal>
-		                </goals>
-		            </execution>
-		            <execution>
-		                <id>jacoco-site</id>
-		                <phase>post-integration-test</phase>
-		                <goals>
-		                    <goal>report</goal>
-		                </goals>
-		            </execution>
-		        </executions>
-		</plugin>
-        </plugins>
-    </build>
+    <plugins>
+        <!-- Jetty Plugin -->
+        <plugin>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-maven-plugin</artifactId>
+            <version>9.2.11.v20150529</version>
+            <configuration>
+                <scanIntervalSeconds>10</scanIntervalSeconds>
+                <webApp>
+                    <contextPath>/</contextPath>
+                </webApp>
+            </configuration>
+        </plugin>
+
+        <!-- JaCoCo Plugin for Code Coverage -->
+        <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>0.8.11</version>
+            <executions>
+                <execution>
+                    <id>jacoco-initialize</id>
+                    <phase>process-resources</phase>
+                    <goals>
+                        <goal>prepare-agent</goal>
+                    </goals>
+                </execution>
+                <execution>
+                    <id>jacoco-site</id>
+                    <phase>post-integration-test</phase>
+                    <goals>
+                        <goal>report</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+
+        <!-- Maven Surefire Plugin for Running Tests -->
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>3.0.0-M9</version>
+            <configuration>
+                <includes>
+                    <include>**/*Test.java</include>
+                </includes>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+
 	<repositories>
     <repository>
       <id>${NEXUS-GRP-REPO}</id>
