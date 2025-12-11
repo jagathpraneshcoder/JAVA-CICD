@@ -2,74 +2,83 @@ pipeline {
     agent any
 
     environment {
-        JAVA_HOME = "/usr/lib/jvm/java-8-openjdk-amd64"
-        PATH = "${JAVA_HOME}/bin:${PATH}"
+        // Credentials from Jenkins
+        GITHUB_TOKEN = credentials('github-jenkins-token')
+        NEXUS_CREDS = credentials('nexus-admin-pass')
+        SONAR_TOKEN = credentials('sonar-token')
+
+        // Nexus & SonarQube URLs
+        NEXUS_URL = "http://localhost:8082"
+        NEXUS_REPO = "releases"
+        SONARQUBE_URL = "http://localhost:9000"
+        TOMCAT_USER = "admin"      // Tomcat manager username
+        TOMCAT_PASS = "admin"      // Tomcat manager password
     }
 
     stages {
-        stage('Checkout Code') {
+        stage('Checkout') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/jagathpraneshcoder/Java-CICD.git',
-                    credentialsId: 'github-jenkins-token'
+                git branch: 'main', url: "https://github.com/jagathpraneshcoder/your-repo.git", credentialsId: 'github-jenkins-token'
             }
         }
 
-        stage('Build with Maven') {
+        stage('Build & Unit Tests') {
             steps {
-                sh 'mvn clean package -DskipTests=true'
+                sh 'mvn clean package'
             }
         }
 
-        stage('Run Unit Tests') {
+        stage('Run Selenium Headless Test') {
             steps {
-                sh 'mvn test'
+                sh 'mvn test -Dtest=com.visualpathit.account.SeleniumHeadlessTest'
             }
         }
 
-        stage('Publish Test Results') {
+        stage('SonarQube Analysis') {
             steps {
-                junit '**/target/surefire-reports/*.xml'
+                withSonarQubeEnv('sonarqube') {
+                    sh "mvn sonar:sonar -Dsonar.projectKey=vprofile -Dsonar.host.url=${SONARQUBE_URL} -Dsonar.login=${SONAR_TOKEN}"
+                }
             }
         }
 
-        stage('Archive WAR File') {
+        stage('Deploy WAR to Nexus') {
             steps {
-                archiveArtifacts artifacts: 'target/*.war', onlyIfSuccessful: true
+                sh """
+                mvn deploy \
+                -DrepositoryId=${NEXUS_REPO} \
+                -Durl=${NEXUS_URL}/repository/${NEXUS_REPO}/ \
+                -Dnexus.username=${NEXUS_CREDS_USR} \
+                -Dnexus.password=${NEXUS_CREDS_PSW}
+                """
             }
         }
 
-        stage('Deploy to Local Tomcat') {
-        when {
-            expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
+        stage('Download WAR from Nexus') {
+            steps {
+                sh """
+                wget -O target/vprofile.war \
+                ${NEXUS_URL}/repository/${NEXUS_REPO}/com/visualpathit/vprofile/v2/vprofile-2.war \
+                --user=${NEXUS_CREDS_USR} --password=${NEXUS_CREDS_PSW}
+                """
+            }
         }
-        steps {
-            echo "🚀 Deploying WAR to local Tomcat..."
-            sh '''
-                echo "Stopping Tomcat..."
-                sudo /opt/tomcat9/bin/shutdown.sh || true
-    
-                echo "Copying WAR file to webapps..."
-                sudo cp target/*.war /opt/tomcat9/webapps/
-    
-                echo "Starting Tomcat..."
-                sudo /opt/tomcat9/bin/startup.sh
-    
-                echo "Waiting for Tomcat to start..."
-                sleep 10
-    
-                echo "✅ Deployment complete!"
-            '''
+
+        stage('Deploy WAR to Tomcat') {
+            steps {
+                sh """
+                curl -u ${TOMCAT_USER}:${TOMCAT_PASS} \
+                -T target/vprofile.war \
+                http://localhost:8080/manager/text/deploy?path=/vprofile&update=true
+                """
+            }
         }
-}
     }
 
     post {
-        success {
-            echo '✅ Build, Test, and Deployment Successful!'
-        }
-        failure {
-            echo '❌ Build, Test, or Deployment Failure!'
+        always {
+            archiveArtifacts artifacts: 'target/*.war', fingerprint: true
+            junit 'target/surefire-reports/*.xml'
         }
     }
 }
