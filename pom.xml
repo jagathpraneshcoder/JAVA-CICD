@@ -18,9 +18,9 @@
         <java.version>17</java.version>
         <spring.version>6.0.15</spring.version>
         <selenium.version>4.25.0</selenium.version>
-        <junit.jupiter.version>5.10.0</junit.jupiter.version>
+        <junit.jupiter.version>5.10.5</junit.jupiter.version>
         <maven.compiler.plugin.version>3.11.0</maven.compiler.plugin.version>
-        <maven.war.plugin.version>3.3.3</maven.war.plugin.version>
+        <maven.war.plugin.version>3.5.1</maven.war.plugin.version>
     </properties>
 
     <dependencies>
