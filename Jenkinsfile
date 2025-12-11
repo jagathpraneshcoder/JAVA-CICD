@@ -40,17 +40,28 @@ pipeline {
         }
 
         stage('Deploy to Local Tomcat') {
-            when {
-                expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
-            }
-            steps {
-                sh '''
-                    /opt/tomcat9/bin/shutdown.sh || true
-                    cp target/*.war /opt/tomcat9/webapps/
-                    /opt/tomcat9/bin/startup.sh
-                '''
-            }
+        when {
+            expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
         }
+        steps {
+            echo "🚀 Deploying WAR to local Tomcat..."
+            sh '''
+                echo "Stopping Tomcat..."
+                sudo /opt/tomcat9/bin/shutdown.sh || true
+    
+                echo "Copying WAR file to webapps..."
+                sudo cp target/*.war /opt/tomcat9/webapps/
+    
+                echo "Starting Tomcat..."
+                sudo /opt/tomcat9/bin/startup.sh
+    
+                echo "Waiting for Tomcat to start..."
+                sleep 10
+    
+                echo "✅ Deployment complete!"
+            '''
+        }
+}
     }
 
     post {
