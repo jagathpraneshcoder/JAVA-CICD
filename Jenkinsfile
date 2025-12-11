@@ -58,7 +58,7 @@ pipeline {
             echo '✅ Build, Test, and Deployment Successful!'
         }
         failure {
-            echo '❌ Build, Test, or Deployment Failed!'
+            echo '❌ Build, Test, or Deployment Failure!'
         }
     }
 }
