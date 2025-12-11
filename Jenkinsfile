@@ -18,7 +18,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: "https://github.com/jagathpraneshcoder/your-repo.git", credentialsId: 'github-jenkins-token'
+                git branch: 'main', url: "https://github.com/jagathpraneshcoder/JAVA-CICD.git", credentialsId: 'github-jenkins-token'
             }
         }
 
