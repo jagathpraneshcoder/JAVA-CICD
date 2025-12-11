@@ -1,53 +1,64 @@
 pipeline {
     agent any
 
-    tools {
-        jdk 'Java-11'       // Make sure Jenkins has Java 11 installed and named 'Java-11'
-        maven 'Maven-3'     // Make sure Jenkins has Maven installed and named 'Maven-3'
-    }
-
     environment {
-        // Optional: set environment variables if needed
-        DISPLAY = ':99' // Needed if using headless Selenium in Linux
+        JAVA_HOME = "/usr/lib/jvm/java-8-openjdk-amd64"
+        PATH = "${JAVA_HOME}/bin:${PATH}"
     }
 
     stages {
-        stage('Checkout') {
+        stage('Checkout Code') {
             steps {
                 git branch: 'main',
                     url: 'https://github.com/jagathpraneshcoder/Java-CICD.git',
-                    credentialsId: 'github-jenkins-token' // replace with your Jenkins credentials ID
+                    credentialsId: 'github-jenkins-token'
             }
         }
 
-        stage('Build') {
+        stage('Build with Maven') {
             steps {
-                sh 'mvn clean compile'
+                sh 'mvn clean package -DskipTests=true'
             }
         }
 
-        stage('Run Selenium Tests') {
+        stage('Run Unit Tests') {
             steps {
-                // Run tests with Maven
                 sh 'mvn test'
             }
         }
 
         stage('Publish Test Results') {
             steps {
-                // JUnit test reports
                 junit '**/target/surefire-reports/*.xml'
+            }
+        }
+
+        stage('Archive WAR File') {
+            steps {
+                archiveArtifacts artifacts: 'target/*.war', onlyIfSuccessful: true
+            }
+        }
+
+        stage('Deploy to Local Tomcat') {
+            when {
+                expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
+            }
+            steps {
+                sh '''
+                    /opt/tomcat9/bin/shutdown.sh || true
+                    cp target/*.war /opt/tomcat9/webapps/
+                    /opt/tomcat9/bin/startup.sh
+                '''
             }
         }
     }
 
     post {
-        always {
-            archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
+        success {
+            echo '✅ Build, Test, and Deployment Successful!'
         }
         failure {
-          
+            echo '❌ Build, Test, or Deployment Failed!'
         }
     }
 }
-
