@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: com.visualpathit.account.SeleniumHeadlessTest
--------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 11.163 s - in com.visualpathit.account.SeleniumHeadlessTest

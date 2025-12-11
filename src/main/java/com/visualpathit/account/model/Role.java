@@ -1,6 +1,6 @@
 package com.visualpathit.account.model;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Set;
 /**{@author waheedk} !*/
 @Entity
