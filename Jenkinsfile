@@ -4,7 +4,7 @@ pipeline {
     environment {
         // Credentials from Jenkins
         GITHUB_TOKEN = credentials('github-jenkins-token')
-        NEXUS_CREDS  = credentials('nexus-admin-pass')
+        NEXUS_CREDS  = credentials('deployment-username')
         SONAR_TOKEN  = credentials('sonar-token')
 
         // URLs
