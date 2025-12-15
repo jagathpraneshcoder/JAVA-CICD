@@ -2,9 +2,8 @@ pipeline {
     agent any
 
     environment {
-        // Credentials from Jenkins
+        // Jenkins credentials
         GITHUB_TOKEN = credentials('github-jenkins-token')
-        NEXUS_CREDS  = credentials('deployment-username')
         SONAR_TOKEN  = credentials('sonar-token')
 
         // URLs
@@ -57,36 +56,23 @@ pipeline {
         /* ---------- 5. DEPLOY TO NEXUS ---------- */
         stage('Deploy WAR to Nexus') {
             steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'nexus-admin-pass',
-                    usernameVariable: 'NEXUS_USER',
-                    passwordVariable: 'NEXUS_PASS'
-                )]) {
-                    sh '''
-                        mvn deploy -DskipTests \
-                            -DrepositoryId=releases \
-                            -Durl=http://localhost:8082/repository/releases/ \
-                            -Dusername=$NEXUS_USER \
-                            -Dpassword=$NEXUS_PASS
-                    '''
-                }
+                // ✅ No credentials here; Maven now uses ~/.m2/settings.xml
+                sh '''
+                    mvn clean deploy -DskipTests
+                '''
+                echo "✅ WAR uploaded to Nexus repository successfully."
             }
         }
-
 
         /* ---------- 6. DOWNLOAD FROM NEXUS ---------- */
         stage('Download WAR from Nexus') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'nexus-admin-pass',
-                                                  usernameVariable: 'NEXUS_USER',
-                                                  passwordVariable: 'NEXUS_PASS')]) {
-                    sh '''
-                        wget -O target/vprofile.war \
-                        ${NEXUS_URL}/repository/${NEXUS_REPO}/com/visualpathit/vprofile/1.0.0/vprofile-1.0.0.war \
-                        --user=$NEXUS_USER --password=$NEXUS_PASS
-                    '''
-                    echo "✅ WAR downloaded from Nexus successfully."
-                }
+                sh '''
+                    wget -O target/vprofile.war \
+                    ${NEXUS_URL}/repository/${NEXUS_REPO}/com/visualpathit/vprofile/1.0.0/vprofile-1.0.0.war \
+                    --user=admin --password=Jagath@2003
+                '''
+                echo "✅ WAR downloaded from Nexus successfully."
             }
         }
 
