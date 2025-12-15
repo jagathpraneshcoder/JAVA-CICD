@@ -57,18 +57,22 @@ pipeline {
         /* ---------- 5. DEPLOY TO NEXUS ---------- */
         stage('Deploy WAR to Nexus') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'nexus-admin-pass',
-                                                  usernameVariable: 'NEXUS_USER',
-                                                  passwordVariable: 'NEXUS_PASS')]) {
+                withCredentials([usernamePassword(
+                    credentialsId: 'nexus-admin-pass',
+                    usernameVariable: 'NEXUS_USER',
+                    passwordVariable: 'NEXUS_PASS'
+                )]) {
                     sh '''
                         mvn deploy -DskipTests \
-                            -Dnexus.username=$NEXUS_USER \
-                            -Dnexus.password=$NEXUS_PASS
+                            -DrepositoryId=releases \
+                            -Durl=http://localhost:8082/repository/releases/ \
+                            -Dusername=$NEXUS_USER \
+                            -Dpassword=$NEXUS_PASS
                     '''
-                    echo "✅ WAR uploaded to Nexus repository successfully."
                 }
             }
         }
+
 
         /* ---------- 6. DOWNLOAD FROM NEXUS ---------- */
         stage('Download WAR from Nexus') {
