@@ -6,26 +6,26 @@
   <servers>
     <server>
       <id>snapshots</id>
-      <username>${env.NEXUS_USER_USR}</username>
-      <password>${env.NEXUS_USER_PSW}</password>
+      <username>admin</username>
+      <password>Jagath@2003</password>
     </server>
 
     <server>
       <id>releases</id>
-      <username>${env.NEXUS_USER_USR}</username>
-      <password>${env.NEXUS_USER_PSW}</password>
+      <username>$admin</username>
+      <password>Jagath@2003</password>
     </server>
 
     <server>
       <id>central</id>
-      <username>${env.NEXUS_USER_USR}</username>
-      <password>${env.NEXUS_USER_PSW}</password>
+      <username>admin</username>
+      <password>Jagath@2003</password>
     </server>
 
     <server>
       <id>nexus-group</id>
-      <username>${env.NEXUS_USER_USR}</username>
-      <password>${env.NEXUS_USER_PSW}</password>
+      <username>admin</username>
+      <password>Jagath@2003</password>
     </server>
   </servers>
 
@@ -33,7 +33,7 @@
     <mirror>
       <id>nexus-group</id>
       <name>Nexus Group Repository</name>
-      <url>http://${env.NEXUSIP}:${env.NEXUSPORT}/repository/nexus-group/</url>
+      <url>http://localhost:8080/repository/nexus-group/</url>
       <mirrorOf>*</mirrorOf>
     </mirror>
   </mirrors>
