@@ -63,8 +63,7 @@ pipeline {
                 )]) {
                     echo "🚀 Deploying WAR to Nexus using settings.xml from repo"
                     sh '''
-                        mvn clean deploy -DskipTests \
-                            --settings settings.xml
+                        mvn clean deploy -DskipTests --settings settings.xml
                     '''
                     echo "✅ WAR uploaded to Nexus repository successfully."
                 }
