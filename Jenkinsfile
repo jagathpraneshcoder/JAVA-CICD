@@ -58,7 +58,8 @@ pipeline {
             steps {
                 // ✅ No credentials here; Maven now uses ~/.m2/settings.xml
                 sh '''
-                    mvn clean deploy -DskipTests
+                    mvn clean deploy -DskipTests \
+                        --settings ~/.m2/settings.xml
                 '''
                 echo "✅ WAR uploaded to Nexus repository successfully."
             }
