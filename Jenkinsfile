@@ -56,12 +56,18 @@ pipeline {
         /* ---------- 5. DEPLOY TO NEXUS ---------- */
         stage('Deploy WAR to Nexus') {
             steps {
-                // ✅ No credentials here; Maven now uses ~/.m2/settings.xml
-                sh '''
-                    mvn clean deploy -DskipTests \
-                        --settings ~/.m2/settings.xml
-                '''
-                echo "✅ WAR uploaded to Nexus repository successfully."
+                withCredentials([usernamePassword(
+                    credentialsId: 'nexus-admin-pass',
+                    usernameVariable: 'NEXUS_USER',
+                    passwordVariable: 'NEXUS_PASS'
+                )]) {
+                    echo "🚀 Deploying WAR to Nexus using settings.xml from repo"
+                    sh '''
+                        mvn clean deploy -DskipTests \
+                            --settings src/main/resources/settings.xml
+                    '''
+                    echo "✅ WAR uploaded to Nexus repository successfully."
+                }
             }
         }
 

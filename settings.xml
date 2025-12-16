@@ -6,26 +6,20 @@
   <servers>
     <server>
       <id>snapshots</id>
-      <username>admin</username>
-      <password>Jagath@2003</password>
+      <username>${env.NEXUS_USER}</username>
+      <password>${env.NEXUS_PASS}</password>
     </server>
 
     <server>
       <id>releases</id>
-      <username>admin</username>
-      <password>Jagath@2003</password>
-    </server>
-
-    <server>
-      <id>central</id>
-      <username>admin</username>
-      <password>Jagath@2003</password>
+      <username>${env.NEXUS_USER}</username>
+      <password>${env.NEXUS_PASS}</password>
     </server>
 
     <server>
       <id>nexus-group</id>
-      <username>admin</username>
-      <password>Jagath@2003</password>
+      <username>${env.NEXUS_USER}</username>
+      <password>${env.NEXUS_PASS}</password>
     </server>
   </servers>
 
