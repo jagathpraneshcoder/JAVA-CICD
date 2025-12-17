@@ -25,10 +25,16 @@ pipeline {
             }
         }
 
-        /* ---------- 2. BUILD ---------- */
+        /* ---------- 2. BUILD & UNIT TESTS ---------- */
         stage('Build & Unit Tests') {
             steps {
-                sh 'mvn clean package -DskipTests=false'
+                sh 'mvn clean verify -DskipTests=false'
+            }
+            post {
+                always {
+                    // ✅ Publish JUnit unit test reports
+                    junit '**/target/surefire-reports/*.xml'
+                }
             }
         }
 
@@ -36,6 +42,12 @@ pipeline {
         stage('Run Selenium Headless Test') {
             steps {
                 sh 'mvn test -Dtest=com.visualpathit.account.SeleniumHeadlessTest'
+            }
+            post {
+                always {
+                    // ✅ Publish Selenium test results too
+                    junit '**/target/surefire-reports/*.xml'
+                }
             }
         }
 
@@ -57,7 +69,7 @@ pipeline {
         stage('Deploy WAR to Nexus') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: 'nexus-admin-pass',
+                    credentialsId: 'nexus-admin-pass',  // store your Nexus username/password here
                     usernameVariable: 'NEXUS_USER',
                     passwordVariable: 'NEXUS_PASS'
                 )]) {
@@ -73,12 +85,18 @@ pipeline {
         /* ---------- 6. DOWNLOAD FROM NEXUS ---------- */
         stage('Download WAR from Nexus') {
             steps {
-                sh '''
-                    wget -O target/vprofile.war \
-                    ${NEXUS_URL}/repository/${NEXUS_REPO}/com/visualpathit/vprofile/1.0.0/vprofile-1.0.0.war \
-                    --user=admin --password=Jagath@2003
-                '''
-                echo "✅ WAR downloaded from Nexus successfully."
+                withCredentials([usernamePassword(
+                    credentialsId: 'nexus-admin-pass',
+                    usernameVariable: 'NEXUS_USER',
+                    passwordVariable: 'NEXUS_PASS'
+                )]) {
+                    sh '''
+                        wget -O target/vprofile.war \
+                        ${NEXUS_URL}/repository/${NEXUS_REPO}/com/visualpathit/vprofile/1.0.0/vprofile-1.0.0.war \
+                        --user=${NEXUS_USER} --password=${NEXUS_PASS}
+                    '''
+                    echo "✅ WAR downloaded from Nexus successfully."
+                }
             }
         }
 
@@ -100,7 +118,6 @@ pipeline {
         always {
             echo "📦 Archiving build artifacts..."
             archiveArtifacts artifacts: 'target/*.war', fingerprint: true
-            junit 'target/surefire-reports/*.xml'
         }
     }
 }
