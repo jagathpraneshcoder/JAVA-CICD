@@ -158,6 +158,14 @@
             <version>${junit.jupiter.version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- JUnit Vintage Engine (enables running JUnit 4 tests on JUnit 5 platform) -->
+        <dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <version>${junit.jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -190,6 +198,17 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.1.2</version>
                 <configuration>
+                    <useModulePath>false</useModulePath>
+                        <properties>
+                            <property>
+                                <name>junit.platform.version</name>
+                                <value>${junit.jupiter.version}</value>
+                            </property>
+                            <property>
+                                <name>junit.platform.discovery.engines.include</name>
+                                <value>vintage,junit-jupiter</value>
+                            </property>
+                        </properties>
                     <includes>
                         <include>**/*Test.java</include>
                     </includes>
